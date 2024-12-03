@@ -14,9 +14,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SignUpValidation } from "@/lib/validation";
+import { Loader } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const SignUpForm = () => {
-  const isLoading = true;
+  const isLoading = false;
+
   const form = useForm<z.infer<typeof SignUpValidation>>({
     resolver: zodResolver(SignUpValidation),
     defaultValues: {
@@ -36,7 +39,7 @@ const SignUpForm = () => {
         <img src="/assets/images/logo.svg" alt="logo" />
         <h3 className="h3-bold md:h2-bold pt-5">Create a new account</h3>
         <p className="text-light-3 small-medium md:base-regular mt-2">
-          To use Snapgram enter your account details
+          To use Snapgram, please enter your account details
         </p>
       </div>
       <form
@@ -116,11 +119,24 @@ const SignUpForm = () => {
         />
         <Button type="submit" className="shad-button_primary rounded">
           {isLoading ? (
-            <div className="flex-center gap-2">Loading...</div>
+            <div className="flex-center gap-2">
+              <Loader /> Loading...
+            </div>
           ) : (
             "Sign Up"
           )}
         </Button>
+        <p className="text-small-regular text-light-2 text-center mt-2">
+          Already have an account?{" "}
+          <Link
+            to="/sign-in"
+            className="text-primary-500"
+            text-small-semibold
+            ml-1
+          >
+            Log in
+          </Link>
+        </p>
       </form>
     </Form>
   );
