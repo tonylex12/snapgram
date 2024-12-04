@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { z } from "zod";
@@ -13,12 +14,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { SignUpValidation } from "@/lib/validation";
 import { Loader } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  useCreateUserAccount,
+  useSignInAccount,
+} from "@/lib/react-query/queriesAndMutations";
+import { useUserContext } from "@/context/AuthContext";
 
 const SignUpForm = () => {
-  const isLoading = false;
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
 
   const form = useForm<z.infer<typeof SignUpValidation>>({
     resolver: zodResolver(SignUpValidation),
@@ -30,8 +39,49 @@ const SignUpForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof SignUpValidation>) {
-    console.log(values);
+  const { mutateAsync: createUserAccount, isPending: isCreatingAccount } =
+    useCreateUserAccount();
+
+  const { mutateAsync: signInAccount, isPending: isSigningInUser } =
+    useSignInAccount();
+
+  async function onSubmit(user: z.infer<typeof SignUpValidation>) {
+    try {
+      const newUser = await createUserAccount(user);
+
+      if (!newUser) {
+        return toast({
+          title: "Sign Up Failed. Please try again",
+        });
+      }
+
+      const session = await signInAccount({
+        email: user.email,
+        password: user.password,
+      });
+
+      if (!session) {
+        toast({ title: "Something went wrong. Please login your new account" });
+        navigate("/sign-in");
+
+        return;
+      }
+
+      const isLoggedIn = await checkAuthUser();
+
+      if (isLoggedIn) {
+        form.reset();
+        navigate("/");
+      } else {
+        toast({
+          title: "Login in failed. Please try again",
+        });
+
+        return;
+      }
+    } catch (error) {
+      console.log({ error });
+    }
   }
   return (
     <Form {...form}>
@@ -118,7 +168,7 @@ const SignUpForm = () => {
           )}
         />
         <Button type="submit" className="shad-button_primary rounded">
-          {isLoading ? (
+          {isCreatingAccount ? (
             <div className="flex-center gap-2">
               <Loader /> Loading...
             </div>
@@ -128,12 +178,7 @@ const SignUpForm = () => {
         </Button>
         <p className="text-small-regular text-light-2 text-center mt-2">
           Already have an account?{" "}
-          <Link
-            to="/sign-in"
-            className="text-primary-500"
-            text-small-semibold
-            ml-1
-          >
+          <Link to="/sign-in" className="text-primary-500 text-small-semibold">
             Log in
           </Link>
         </p>
