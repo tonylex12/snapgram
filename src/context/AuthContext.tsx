@@ -5,17 +5,15 @@ import { getCurrentUser } from "@/lib/appwrite/api";
 import { useNavigate } from "react-router-dom";
 import { IUser } from "@/types";
 
-export const INITIAL_USER = {
-  id: "",
-  name: "",
-  username: "",
-  email: "",
-  imageUrl: "",
-  bio: "",
-};
-
 const INITIAL_STATE = {
-  user: INITIAL_USER,
+  user: {
+    id: "",
+    name: "",
+    username: "",
+    email: "",
+    imageUrl: "",
+    bio: "",
+  },
   isLoading: false,
   isAuthenticated: false,
   setUser: () => {},
@@ -35,6 +33,15 @@ type IContextType = {
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const INITIAL_USER = {
+    id: "",
+    name: "",
+    username: "",
+    email: "",
+    imageUrl: "",
+    bio: "",
+  };
+
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -71,6 +78,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    // Only check auth if we're not already on the sign-in page
+    if (window.location.pathname === "/sign-in") return;
+
     const cookieFallback = localStorage.getItem("cookieFallback");
     if (
       cookieFallback === "[]" ||
@@ -78,6 +88,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       cookieFallback === undefined
     ) {
       navigate("/sign-in");
+      return;
     }
 
     checkAuthUser();
@@ -85,9 +96,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const value = {
     user,
+    setUser,
     isLoading,
     isAuthenticated,
-    setUser,
     setIsAuthenticated,
     checkAuthUser,
   };

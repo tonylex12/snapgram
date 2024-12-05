@@ -53,6 +53,18 @@ export async function saveUserToDB(user: {
 
 export async function signInAccount(user: { email: string; password: string }) {
   try {
+    // Try to delete any existing session first
+    try {
+      const currentSession = await account.getSession("current");
+      if (currentSession) {
+        await account.deleteSession(currentSession.$id);
+      }
+    } catch (error) {
+      console.log(error);
+      // Ignore error if no session exists
+    }
+
+    // Create new session
     const session = await account.createEmailPasswordSession(
       user.email,
       user.password
@@ -61,6 +73,7 @@ export async function signInAccount(user: { email: string; password: string }) {
     return session;
   } catch (error) {
     console.log(error);
+    throw error; // Re-throw the error to be handled by the caller
   }
 }
 

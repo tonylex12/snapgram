@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { SignInValidation } from "@/lib/validation";
-import { Loader } from "lucide-react";
+import Loader from "@/components/shared/Loader";
 import { Link, useNavigate } from "react-router-dom";
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
@@ -25,7 +25,7 @@ const SignInForm = () => {
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
   const navigate = useNavigate();
 
-  const { mutateAsync: signInAccount } = useSignInAccount();
+  const { mutateAsync: signInAccount, isPending } = useSignInAccount();
 
   const form = useForm<z.infer<typeof SignInValidation>>({
     resolver: zodResolver(SignInValidation),
@@ -108,7 +108,7 @@ const SignInForm = () => {
           )}
         />
         <Button type="submit" className="shad-button_primary rounded">
-          {isUserLoading ? (
+          {isPending || isUserLoading ? (
             <div className="flex-center gap-2">
               <Loader /> Loading...
             </div>
