@@ -1,19 +1,20 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from "react";
-import { getCurrentUser } from "@/lib/appwrite/api";
 import { useNavigate } from "react-router-dom";
+import { createContext, useContext, useEffect, useState } from "react";
+
 import { IUser } from "@/types";
+import { getCurrentUser } from "@/lib/appwrite/api";
+
+export const INITIAL_USER = {
+  id: "",
+  name: "",
+  username: "",
+  email: "",
+  imageUrl: "",
+  bio: "",
+};
 
 const INITIAL_STATE = {
-  user: {
-    id: "",
-    name: "",
-    username: "",
-    email: "",
-    imageUrl: "",
-    bio: "",
-  },
+  user: INITIAL_USER,
   isLoading: false,
   isAuthenticated: false,
   setUser: () => {},
@@ -32,27 +33,16 @@ type IContextType = {
 
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
-const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const INITIAL_USER = {
-    id: "",
-    name: "",
-    username: "",
-    email: "",
-    imageUrl: "",
-    bio: "",
-  };
-
-  const [user, setUser] = useState<IUser>(INITIAL_USER);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const [user, setUser] = useState<IUser>(INITIAL_USER);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const checkAuthUser = async () => {
     setIsLoading(true);
     try {
       const currentAccount = await getCurrentUser();
-
       if (currentAccount) {
         setUser({
           id: currentAccount.$id,
@@ -62,7 +52,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           imageUrl: currentAccount.imageUrl,
           bio: currentAccount.bio,
         });
-
         setIsAuthenticated(true);
 
         return true;
@@ -70,7 +59,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       return false;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return false;
     } finally {
       setIsLoading(false);
@@ -78,9 +67,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // Only check auth if we're not already on the sign-in page
-    if (window.location.pathname === "/sign-in") return;
-
     const cookieFallback = localStorage.getItem("cookieFallback");
     if (
       cookieFallback === "[]" ||
@@ -88,7 +74,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       cookieFallback === undefined
     ) {
       navigate("/sign-in");
-      return;
     }
 
     checkAuthUser();
@@ -104,8 +89,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export default AuthProvider;
+}
 
 export const useUserContext = () => useContext(AuthContext);
