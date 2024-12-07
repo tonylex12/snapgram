@@ -6,14 +6,17 @@ import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import Explore from "./_root/pages/Explore";
-import Saved from "./_root/pages/Saved";
-import AllUsers from "./_root/pages/AllUsers";
-import CreatePost from "./_root/pages/CreatePost";
-import EditPost from "./_root/pages/EditPost";
-import PostDetails from "./_root/pages/PostDetails";
-import Profile from "./_root/pages/Profile";
-import UpdateProfile from "./_root/pages/UpdateProfile";
+import {
+  Explore,
+  LikedPosts,
+  Saved,
+  AllUsers,
+  CreatePost,
+  EditPost,
+  PostDetails,
+  Profile,
+  UpdateProfile,
+} from "./_root/pages/";
 
 const App = () => {
   return (
@@ -36,6 +39,7 @@ const App = () => {
           <Route path="/posts/:id " element={<PostDetails />} />
           <Route path="/profile/:id/*" element={<Profile />} />
           <Route path="/update-profile/:id/*" element={<UpdateProfile />} />
+          <Route path="/liked-posts" element={<LikedPosts />} />
         </Route>
       </Routes>
 
