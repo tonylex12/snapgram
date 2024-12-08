@@ -11,7 +11,7 @@ type PostCardProps = {
 const PostCard = ({ post }: PostCardProps) => {
   const { user } = useUserContext();
 
-  if (!post.creator) return null;
+  if (!post.creator) return;
 
   return (
     <div className="post-card">
@@ -27,6 +27,7 @@ const PostCard = ({ post }: PostCardProps) => {
               className="rounded-full w-12 lg:h-12"
             />
           </Link>
+
           <div className="flex flex-col">
             <p className="base-medium lg:body-bold text-light-1">
               {post?.creator.name}
