@@ -1,6 +1,7 @@
 import { INewPost, INewUser, IUpdatePost } from "@/types";
 import { ID, ImageGravity, Query } from "appwrite";
 import { account, appwriteConfig, avatars, databases, storage } from "./config";
+import imageCompression from 'browser-image-compression';
 
 export async function createUserAccount(user: INewUser) {
   try {
@@ -110,8 +111,25 @@ export async function signOutAccount() {
 
 export async function createPost(post: INewPost) {
   try {
-    // Upload file to appwrite storage
-    const uploadedFile = await uploadFile(post.file[0]);
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true
+    };
+
+    const compressedFile = await imageCompression(post.file[0], options);
+
+    // Convert Blob to File
+    const fileName = post.file[0].name;
+    const fileType = post.file[0].type;
+    const fileLastModified = post.file[0].lastModified;
+
+    const compressedFileAsFile = new File([compressedFile], fileName, { type: fileType, lastModified: fileLastModified });
+
+    console.log('Compressed File:', compressedFileAsFile);
+
+    // Ensure that the uploadFile function receives a File object
+    const uploadedFile = await uploadFile(compressedFileAsFile);
 
     if (!uploadedFile) throw Error;
 
@@ -287,8 +305,24 @@ export async function updatePost(post: IUpdatePost) {
     };
 
     if (hasFileToUpdate) {
+      // Compress the file before uploading
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      };
+
+      const compressedFile = await imageCompression(post.file[0], options);
+
+      // Convert Blob to File
+      const fileName = post.file[0].name;
+      const fileType = post.file[0].type;
+      const fileLastModified = post.file[0].lastModified;
+
+      const compressedFileAsFile = new File([compressedFile], fileName, { type: fileType, lastModified: fileLastModified });
+
       // Upload file to appwrite storage
-      const uploadedFile = await uploadFile(post.file[0]);
+      const uploadedFile = await uploadFile(compressedFileAsFile);
 
       if (!uploadedFile) throw Error;
 
