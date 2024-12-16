@@ -609,7 +609,7 @@ export async function getUsersFollowing(userId: string) {
     const following = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      [Query.search("following", userId)]
+      [Query.search("following", userId), Query.limit(10)]
     );
 
     return following;

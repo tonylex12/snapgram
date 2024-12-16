@@ -40,7 +40,7 @@ const Profile = () => {
 
   const { data: currentUser } = useGetUserById(id || "");
   const { data: loggedInUser } = useGetUserById(user.id || "");
-  const { data: usersFollowing } = useGetUsersFollowing(user.id || "");
+  const { data: usersFollowing } = useGetUsersFollowing(id || "");
   const { data: followersCount = 0, refetch: refetchFollowersCount } =
     useGetFollowersCount(currentUser?.$id || "");
 
@@ -155,11 +155,11 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="profile-inner_container">
+      <div className="profile-inner_container border border-dark-3 p-4 rounded-xl">
         {usersFollowing?.documents && usersFollowing.documents.length > 0 && (
           <div className="w-full">
             <h3 className="h3-bold text-left w-full mb-4">Following</h3>
-            <div className="flex flex-wrap gap-6 w-full bg-dark-2 p-4 rounded-xl border-[#7C67FE] border">
+            <div className="flex flex-wrap gap-6 w-full p-4 rounded-xl">
               {usersFollowing.documents.map((followedUser) => (
                 <Link
                   to={`/profile/${followedUser.$id}`}
@@ -174,7 +174,7 @@ const Profile = () => {
                     alt="profile"
                     className="w-14 h-14 rounded-full object-cover"
                   />
-                  <p className="base-medium text-light-2">
+                  <p className="base-medium text-light-2 my-2">
                     {followedUser.username}
                   </p>
                 </Link>
