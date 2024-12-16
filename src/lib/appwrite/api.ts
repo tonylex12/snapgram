@@ -1,7 +1,8 @@
-import { INewPost, INewUser, IUpdatePost } from "@/types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { ID, ImageGravity, Query } from "appwrite";
 import { account, appwriteConfig, avatars, databases, storage } from "./config";
-import imageCompression from 'browser-image-compression';
+import imageCompression from "browser-image-compression";
 
 export async function createUserAccount(user: INewUser) {
   try {
@@ -114,7 +115,7 @@ export async function createPost(post: INewPost) {
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,
-      useWebWorker: true
+      useWebWorker: true,
     };
 
     const compressedFile = await imageCompression(post.file[0], options);
@@ -124,9 +125,12 @@ export async function createPost(post: INewPost) {
     const fileType = post.file[0].type;
     const fileLastModified = post.file[0].lastModified;
 
-    const compressedFileAsFile = new File([compressedFile], fileName, { type: fileType, lastModified: fileLastModified });
+    const compressedFileAsFile = new File([compressedFile], fileName, {
+      type: fileType,
+      lastModified: fileLastModified,
+    });
 
-    console.log('Compressed File:', compressedFileAsFile);
+    console.log("Compressed File:", compressedFileAsFile);
 
     // Ensure that the uploadFile function receives a File object
     const uploadedFile = await uploadFile(compressedFileAsFile);
@@ -309,7 +313,7 @@ export async function updatePost(post: IUpdatePost) {
       const options = {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
-        useWebWorker: true
+        useWebWorker: true,
       };
 
       const compressedFile = await imageCompression(post.file[0], options);
@@ -319,7 +323,10 @@ export async function updatePost(post: IUpdatePost) {
       const fileType = post.file[0].type;
       const fileLastModified = post.file[0].lastModified;
 
-      const compressedFileAsFile = new File([compressedFile], fileName, { type: fileType, lastModified: fileLastModified });
+      const compressedFileAsFile = new File([compressedFile], fileName, {
+        type: fileType,
+        lastModified: fileLastModified,
+      });
 
       // Upload file to appwrite storage
       const uploadedFile = await uploadFile(compressedFileAsFile);
@@ -393,5 +400,206 @@ export async function deletePost(postId?: string, imageId?: string) {
     return { status: "Ok" };
   } catch (error) {
     console.log(error);
+  }
+}
+
+export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
+  const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(10)];
+
+  if (pageParam) {
+    queries.push(Query.cursorAfter(pageParam.toString()));
+  }
+
+  try {
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      queries
+    );
+
+    if (!posts) throw Error;
+
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function searchPosts(searchTerm: string) {
+  try {
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.search("caption", searchTerm)]
+    );
+
+    if (!posts) throw Error;
+
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getUsers(limit?: number) {
+  const queries: any[] = [Query.orderDesc("$createdAt")];
+
+  if (limit) {
+    queries.push(Query.limit(limit));
+  }
+
+  try {
+    const users = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      queries
+    );
+
+    if (!users) throw Error;
+
+    return users;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== GET USER BY ID
+export async function getUserById(userId: string) {
+  try {
+    const user = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId
+    );
+
+    if (!user) throw Error;
+
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== UPDATE USER
+export async function updateUser(user: IUpdateUser) {
+  const hasFileToUpdate = user.file.length > 0;
+  try {
+    let image = {
+      imageUrl: user.imageUrl,
+      imageId: user.imageId,
+    };
+
+    if (hasFileToUpdate) {
+      // Upload new file to appwrite storage
+      const uploadedFile = await uploadFile(user.file[0]);
+      if (!uploadedFile) throw Error;
+
+      // Get new file url
+      const fileUrl = getFilePreview(uploadedFile.$id);
+      if (!fileUrl) {
+        await deleteFile(uploadedFile.$id);
+        throw Error;
+      }
+
+      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+    }
+
+    //  Update user
+    const updatedUser = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      user.userId,
+      {
+        name: user.name,
+        bio: user.bio,
+        imageUrl: image.imageUrl,
+        imageId: image.imageId,
+      }
+    );
+
+    // Failed to update
+    if (!updatedUser) {
+      // Delete new file that has been recently uploaded
+      if (hasFileToUpdate) {
+        await deleteFile(image.imageId);
+      }
+      // If no new file uploaded, just throw error
+      throw Error;
+    }
+
+    // Safely delete old file after successful update
+    if (user.imageId && hasFileToUpdate) {
+      await deleteFile(user.imageId);
+    }
+
+    return updatedUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function followingUser(
+  userId: string,
+  followingArray: string[],
+  targetUserId: string
+) {
+  try {
+    // Update the following array of the user who is following
+    const updatedFollowingUser = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId,
+      {
+        following: followingArray,
+      }
+    );
+
+    if (!updatedFollowingUser) throw Error;
+
+    // Get the target user's current followers
+    const targetUser = await getUserById(targetUserId);
+    if (!targetUser) throw Error;
+
+    const currentFollowers = targetUser.followers || [];
+    const isFollowing = followingArray.includes(targetUserId);
+
+    // Update the followers array based on whether we're following or unfollowing
+    let newFollowers = [...currentFollowers];
+    if (isFollowing && !currentFollowers.includes(userId)) {
+      newFollowers.push(userId);
+    } else if (!isFollowing) {
+      newFollowers = currentFollowers.filter((id: string) => id !== userId);
+    }
+
+    // Update the followers array of the target user
+    const updatedTargetUser = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      targetUserId,
+      {
+        followers: newFollowers,
+      }
+    );
+
+    if (!updatedTargetUser) throw Error;
+
+    return { updatedFollowingUser, updatedTargetUser };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getFollowersCount(userId: string) {
+  try {
+    const followers = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.search("following", userId)]
+    );
+
+    return followers.documents.length;
+  } catch (error) {
+    console.log(error);
+    return 0;
   }
 }
