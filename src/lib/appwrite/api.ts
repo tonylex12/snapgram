@@ -603,3 +603,17 @@ export async function getFollowersCount(userId: string) {
     return 0;
   }
 }
+
+export async function getUsersFollowing(userId: string) {
+  try {
+    const following = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.search("following", userId)]
+    );
+
+    return following;
+  } catch (error) {
+    console.log(error);
+  }
+}

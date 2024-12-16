@@ -18,6 +18,7 @@ import {
   useFollowingUser,
   useGetUserById,
   useGetFollowersCount,
+  useGetUsersFollowing,
 } from "@/lib/react-query/queriesAndMutations";
 
 interface StabBlockProps {
@@ -39,6 +40,7 @@ const Profile = () => {
 
   const { data: currentUser } = useGetUserById(id || "");
   const { data: loggedInUser } = useGetUserById(user.id || "");
+  const { data: usersFollowing } = useGetUsersFollowing(user.id || "");
   const { data: followersCount = 0, refetch: refetchFollowersCount } =
     useGetFollowersCount(currentUser?.$id || "");
 
@@ -151,6 +153,35 @@ const Profile = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="profile-inner_container">
+        {usersFollowing?.documents && usersFollowing.documents.length > 0 && (
+          <div className="w-full">
+            <h3 className="h3-bold text-left w-full mb-4">Following</h3>
+            <div className="flex flex-wrap gap-6 w-full bg-dark-2 p-4 rounded-xl border-[#7C67FE] border">
+              {usersFollowing.documents.map((followedUser) => (
+                <Link
+                  to={`/profile/${followedUser.$id}`}
+                  key={followedUser.$id}
+                  className="flex-center flex-col gap-1 hover:opacity-75 transition-opacity"
+                >
+                  <img
+                    src={
+                      followedUser.imageUrl ||
+                      "/assets/icons/profile-placeholder.svg"
+                    }
+                    alt="profile"
+                    className="w-14 h-14 rounded-full object-cover"
+                  />
+                  <p className="base-medium text-light-2">
+                    {followedUser.username}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {currentUser.$id === user.id && (

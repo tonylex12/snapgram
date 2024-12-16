@@ -26,6 +26,7 @@ import {
   updateUser,
   followingUser,
   getFollowersCount,
+  getUsersFollowing,
 } from "@/lib/appwrite/api";
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 
@@ -226,10 +227,14 @@ export const useFollowingUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, followingArray, targetUserId }: { 
-      userId: string; 
-      followingArray: string[]; 
-      targetUserId: string 
+    mutationFn: ({
+      userId,
+      followingArray,
+      targetUserId,
+    }: {
+      userId: string;
+      followingArray: string[];
+      targetUserId: string;
     }) => followingUser(userId, followingArray, targetUserId),
     onSuccess: (data, { userId, targetUserId }) => {
       // Invalidate both the follower and the target user queries
@@ -251,5 +256,12 @@ export const useGetFollowersCount = (userId: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_FOLLOWERS_COUNT, userId],
     queryFn: () => getFollowersCount(userId),
+  });
+};
+
+export const useGetUsersFollowing = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USERS_FOLLOWING, userId],
+    queryFn: () => getUsersFollowing(userId),
   });
 };
