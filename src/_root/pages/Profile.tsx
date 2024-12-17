@@ -155,8 +155,8 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="profile-inner_container border border-dark-3 p-4 rounded-xl">
-        {usersFollowing?.documents && usersFollowing.documents.length > 0 && (
+      {usersFollowing?.documents && usersFollowing.documents.length > 0 && (
+        <div className="profile-inner_container border border-dark-3 p-4 rounded-xl">
           <div className="w-full">
             <h3 className="h3-bold text-left w-full mb-4">Following</h3>
             <div className="flex flex-wrap gap-6 w-full p-4 rounded-xl">
@@ -181,8 +181,8 @@ const Profile = () => {
               ))}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {currentUser.$id === user.id && (
         <div className="flex max-w-5xl w-full">
