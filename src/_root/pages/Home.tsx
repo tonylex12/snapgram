@@ -11,6 +11,7 @@ const Home = () => {
     hasNextPage,
     isFetchingNextPage,
     status,
+    isPending,
   } = useGetPosts();
 
   const intObserver = useRef<IntersectionObserver | null>(null);
@@ -32,7 +33,7 @@ const Home = () => {
     return () => intObserver.current?.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (status === "pending") return <Loader />;
+  if (isPending) return <Loader />;
   if (status === "error") return <p>Error loading posts</p>;
 
   return (
