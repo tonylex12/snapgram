@@ -100,7 +100,7 @@ const SignUpForm = () => {
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mx-8">
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
@@ -118,7 +118,7 @@ const SignUpForm = () => {
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mx-8">
               <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input
@@ -136,7 +136,7 @@ const SignUpForm = () => {
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mx-8">
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
@@ -154,7 +154,7 @@ const SignUpForm = () => {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mx-8">
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input
@@ -167,7 +167,7 @@ const SignUpForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="shad-button_primary rounded">
+        <Button type="submit" className="shad-button_primary rounded mx-8">
           {isCreatingAccount ? (
             <div className="flex-center gap-2">
               <Loader /> Loading...
