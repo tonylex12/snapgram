@@ -94,13 +94,13 @@ const SignUpForm = () => {
       </div>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-5 w-[420px] mt-4"
+        className="flex flex-col gap-5 w-[320px] mt-4"
       >
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-2">
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
@@ -118,7 +118,7 @@ const SignUpForm = () => {
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-2">
               <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input
@@ -136,7 +136,7 @@ const SignUpForm = () => {
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-2">
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
@@ -154,7 +154,7 @@ const SignUpForm = () => {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-2">
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input
@@ -167,7 +167,7 @@ const SignUpForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="shad-button_primary rounded mx-8">
+        <Button type="submit" className="shad-button_primary rounded mx-2">
           {isCreatingAccount ? (
             <div className="flex-center gap-2">
               <Loader /> Loading...

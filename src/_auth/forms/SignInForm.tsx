@@ -70,13 +70,13 @@ const SignInForm = () => {
       </div>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-5 w-[420px] mt-4"
+        className="flex flex-col gap-5 w-[320px] mt-4"
       >
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-2">
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
@@ -94,7 +94,7 @@ const SignInForm = () => {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-2">
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input
@@ -107,7 +107,7 @@ const SignInForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="shad-button_primary rounded mx-8">
+        <Button type="submit" className="shad-button_primary rounded mx-2">
           {isPending || isUserLoading ? (
             <div className="flex-center gap-2">
               <Loader /> Loading...
